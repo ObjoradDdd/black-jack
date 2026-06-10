@@ -1,7 +1,8 @@
-package com.github.objoraddd.blackjack.domain.game.valueobjects;
+package com.github.objoraddd.blackjack.domain.Table.valueobjects;
 
-import com.github.objoraddd.blackjack.domain.game.exceptions.InvalidCardException;
 import java.util.Objects;
+
+import com.github.objoraddd.blackjack.domain.Table.exceptions.InvalidCardException;
 
 public final class Card {
     private final Suit suit;

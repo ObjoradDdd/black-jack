@@ -1,4 +1,4 @@
-package com.github.objoraddd.blackjack.domain.game.valueobjects;
+package com.github.objoraddd.blackjack.domain.Table.valueobjects;
 
 public enum Rank {
     TWO(2), THREE(3), FOUR(4), FIVE(5),

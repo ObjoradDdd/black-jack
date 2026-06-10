@@ -1,9 +1,9 @@
-package com.github.objoraddd.blackjack.domain.game.valueobjects;
+package com.github.objoraddd.blackjack.domain.Table.valueobjects;
 
-public class Username {
+public final class Username {
     private String value;
 
-    public Username(String value) {
+    private Username(String value) {
         if (value == null || value.trim().isEmpty()) {
             throw new IllegalArgumentException("Username cannot be null or empty");
         }
@@ -12,5 +12,9 @@ public class Username {
 
     public String getValue() {
         return value;
+    }
+
+    public static Username of(String value) {
+        return new Username(value);
     }
 }

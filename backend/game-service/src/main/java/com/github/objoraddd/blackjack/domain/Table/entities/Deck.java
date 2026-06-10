@@ -1,13 +1,13 @@
-package com.github.objoraddd.blackjack.domain.game.entities;
+package com.github.objoraddd.blackjack.domain.Table.entities;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.github.objoraddd.blackjack.domain.game.exceptions.InvalidDeckException;
-import com.github.objoraddd.blackjack.domain.game.valueobjects.Card;
-import com.github.objoraddd.blackjack.domain.game.valueobjects.Rank;
-import com.github.objoraddd.blackjack.domain.game.valueobjects.Suit;
+import com.github.objoraddd.blackjack.domain.Table.exceptions.InvalidDeckException;
+import com.github.objoraddd.blackjack.domain.Table.valueobjects.Card;
+import com.github.objoraddd.blackjack.domain.Table.valueobjects.Rank;
+import com.github.objoraddd.blackjack.domain.Table.valueobjects.Suit;
 
 public final class Deck {
     private final List<Card> cards;

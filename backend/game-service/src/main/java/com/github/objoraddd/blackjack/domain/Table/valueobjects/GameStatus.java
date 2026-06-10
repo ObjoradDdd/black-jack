@@ -1,4 +1,4 @@
-package com.github.objoraddd.blackjack.domain.game.valueobjects;
+package com.github.objoraddd.blackjack.domain.Table.valueobjects;
 
 public enum GameStatus {
     WAGER_PLACEMENT,

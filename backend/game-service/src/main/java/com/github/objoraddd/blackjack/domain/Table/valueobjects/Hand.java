@@ -1,9 +1,9 @@
-package com.github.objoraddd.blackjack.domain.game.valueobjects;
+package com.github.objoraddd.blackjack.domain.Table.valueobjects;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.objoraddd.blackjack.domain.game.exceptions.InvalidHandException;
+import com.github.objoraddd.blackjack.domain.Table.exceptions.InvalidHandException;
 
 public final class Hand {
     private final List<Card> cards;
@@ -54,5 +54,26 @@ public final class Hand {
 
     public boolean isBusted() {
         return calculateScore() > 21;
+    }
+
+    public boolean isBlackjack() {
+        return cards.size() == 2 && calculateScore() == 21;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        Hand hand = (Hand) o;
+
+        return cards.equals(hand.cards);
+    }
+
+    @Override
+    public int hashCode() {
+        return cards.hashCode();
     }
 }

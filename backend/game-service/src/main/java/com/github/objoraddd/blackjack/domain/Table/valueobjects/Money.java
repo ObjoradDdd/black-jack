@@ -1,12 +1,13 @@
-package com.github.objoraddd.blackjack.domain.game.valueobjects;
+package com.github.objoraddd.blackjack.domain.Table.valueobjects;
 
 import java.util.Objects;
-import com.github.objoraddd.blackjack.domain.game.exceptions.InvalidMoneyException;
+
+import com.github.objoraddd.blackjack.domain.Table.exceptions.InvalidMoneyException;
 
 public final class Money {
     private final Long amount;
 
-    public Money(long amount) {
+    private Money(long amount) {
         if (amount < 0) {
             throw InvalidMoneyException.negativeAmount();
         }

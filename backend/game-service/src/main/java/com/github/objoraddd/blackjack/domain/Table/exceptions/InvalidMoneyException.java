@@ -1,4 +1,4 @@
-package com.github.objoraddd.blackjack.domain.game.valueobjects;
+package com.github.objoraddd.blackjack.domain.Table.exceptions;
 
 import com.github.objoraddd.blackjack.domain.exceptions.DomainException;
 
