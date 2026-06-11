@@ -1,8 +1,8 @@
-package com.github.objoraddd.blackjack.domain.Table.valueobjects;
+package com.github.objoraddd.blackjack.domain.table.valueobjects;
 
 import java.util.Objects;
 
-import com.github.objoraddd.blackjack.domain.Table.exceptions.InvalidMoneyException;
+import com.github.objoraddd.blackjack.domain.table.exceptions.InvalidMoneyException;
 
 public final class Money {
     private final Long amount;

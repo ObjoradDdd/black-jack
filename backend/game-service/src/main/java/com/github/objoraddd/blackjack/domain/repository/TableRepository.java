@@ -1,7 +1,7 @@
 package com.github.objoraddd.blackjack.domain.repository;
 
-import com.github.objoraddd.blackjack.domain.Table.Table;
-import com.github.objoraddd.blackjack.domain.Table.valueobjects.TableId;
+import com.github.objoraddd.blackjack.domain.table.Table;
+import com.github.objoraddd.blackjack.domain.table.valueobjects.TableId;
 
 import reactor.core.publisher.Mono;
 

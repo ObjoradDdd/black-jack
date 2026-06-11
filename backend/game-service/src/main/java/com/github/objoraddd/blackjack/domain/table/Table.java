@@ -1,13 +1,13 @@
-package com.github.objoraddd.blackjack.domain.Table;
+package com.github.objoraddd.blackjack.domain.table;
 
-import com.github.objoraddd.blackjack.domain.Table.entities.Deck;
-import com.github.objoraddd.blackjack.domain.Table.entities.Player;
-import com.github.objoraddd.blackjack.domain.Table.exceptions.InvalidTableException;
-import com.github.objoraddd.blackjack.domain.Table.valueobjects.GameResult;
-import com.github.objoraddd.blackjack.domain.Table.valueobjects.GameStatus;
-import com.github.objoraddd.blackjack.domain.Table.valueobjects.Hand;
-import com.github.objoraddd.blackjack.domain.Table.valueobjects.Money;
-import com.github.objoraddd.blackjack.domain.Table.valueobjects.TableId;
+import com.github.objoraddd.blackjack.domain.table.entities.Deck;
+import com.github.objoraddd.blackjack.domain.table.entities.Player;
+import com.github.objoraddd.blackjack.domain.table.exceptions.InvalidTableException;
+import com.github.objoraddd.blackjack.domain.table.valueobjects.GameResult;
+import com.github.objoraddd.blackjack.domain.table.valueobjects.GameStatus;
+import com.github.objoraddd.blackjack.domain.table.valueobjects.Hand;
+import com.github.objoraddd.blackjack.domain.table.valueobjects.Money;
+import com.github.objoraddd.blackjack.domain.table.valueobjects.TableId;
 
 public final class Table {
     private final TableId id;

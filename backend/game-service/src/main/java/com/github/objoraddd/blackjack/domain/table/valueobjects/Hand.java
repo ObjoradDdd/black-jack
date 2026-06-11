@@ -1,9 +1,9 @@
-package com.github.objoraddd.blackjack.domain.Table.valueobjects;
+package com.github.objoraddd.blackjack.domain.table.valueobjects;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.objoraddd.blackjack.domain.Table.exceptions.InvalidHandException;
+import com.github.objoraddd.blackjack.domain.table.exceptions.InvalidHandException;
 
 public final class Hand {
     private final List<Card> cards;

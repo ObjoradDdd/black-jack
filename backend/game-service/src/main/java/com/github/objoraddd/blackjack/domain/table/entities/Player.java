@@ -1,12 +1,12 @@
-package com.github.objoraddd.blackjack.domain.Table.entities;
+package com.github.objoraddd.blackjack.domain.table.entities;
 
-import com.github.objoraddd.blackjack.domain.Table.exceptions.InvalidHandException;
-import com.github.objoraddd.blackjack.domain.Table.exceptions.InvalidPlayerException;
-import com.github.objoraddd.blackjack.domain.Table.valueobjects.Card;
-import com.github.objoraddd.blackjack.domain.Table.valueobjects.Hand;
-import com.github.objoraddd.blackjack.domain.Table.valueobjects.Money;
-import com.github.objoraddd.blackjack.domain.Table.valueobjects.UserId;
-import com.github.objoraddd.blackjack.domain.Table.valueobjects.Username;
+import com.github.objoraddd.blackjack.domain.table.exceptions.InvalidHandException;
+import com.github.objoraddd.blackjack.domain.table.exceptions.InvalidPlayerException;
+import com.github.objoraddd.blackjack.domain.table.valueobjects.Card;
+import com.github.objoraddd.blackjack.domain.table.valueobjects.Hand;
+import com.github.objoraddd.blackjack.domain.table.valueobjects.Money;
+import com.github.objoraddd.blackjack.domain.table.valueobjects.UserId;
+import com.github.objoraddd.blackjack.domain.table.valueobjects.Username;
 
 public final class Player {
     private final UserId userId;
