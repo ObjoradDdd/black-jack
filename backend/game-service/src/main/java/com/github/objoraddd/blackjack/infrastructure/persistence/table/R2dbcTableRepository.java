@@ -23,7 +23,7 @@ public final class R2dbcTableRepository implements TableRepository {
     @Override
     public Mono<Table> findById(TableId id) {
         String sql = """
-                SELECT id, user_id, username, balance, status, result, bet_amount, player_cards, dealer_cards, deck_cards, last_updated
+                SELECT id, user_id, username, balance, initial_balance, status, result, bet_amount, player_cards, dealer_cards, deck_cards, last_updated
                 FROM blackjack_tables
                 WHERE id = :id
                 FOR UPDATE
@@ -36,6 +36,8 @@ public final class R2dbcTableRepository implements TableRepository {
                         Objects.requireNonNull(row.get("user_id", String.class), "User ID cannot be null"),
                         Objects.requireNonNull(row.get("username", String.class), "Username cannot be null"),
                         Objects.requireNonNull(row.get("balance", Long.class), "Balance cannot be null"),
+                        Objects.requireNonNull(row.get("initial_balance", Long.class),
+                                "Initial balance cannot be null"),
                         Objects.requireNonNull(row.get("status", String.class), "Status cannot be null"),
                         Objects.requireNonNull(row.get("result", String.class), "Result cannot be null"),
                         Objects.requireNonNull(row.get("bet_amount", Long.class), "Bet amount cannot be null"),
@@ -50,8 +52,8 @@ public final class R2dbcTableRepository implements TableRepository {
     @Override
     public Mono<Table> create(Table table) {
         String sql = """
-                INSERT INTO blackjack_tables (id, user_id, username, balance, status, result, bet_amount, player_cards, dealer_cards, deck_cards, last_updated)
-                VALUES (:id, :userId, :username, :balance, :status, :result, :betAmount, :playerCards::jsonb, :dealerCards::jsonb, :deckCards, :lastUpdated)
+                INSERT INTO blackjack_tables (id, user_id, username, balance, initial_balance, status, result, bet_amount, player_cards, dealer_cards, deck_cards, last_updated)
+                VALUES (:id, :userId, :username, :balance, :initialBalance, :status, :result, :betAmount, :playerCards::jsonb, :dealerCards::jsonb, :deckCards, :lastUpdated)
                 """;
 
         return executeWrite(sql, table);
@@ -68,6 +70,7 @@ public final class R2dbcTableRepository implements TableRepository {
                     dealer_cards = :dealerCards::jsonb,
                     deck_cards = :deckCards,
                     balance = :balance,
+                    initial_balance = :initialBalance,
                     last_updated = :lastUpdated
                 WHERE id = :id
                 """;
@@ -102,6 +105,7 @@ public final class R2dbcTableRepository implements TableRepository {
         map.put("userId", entity.userId());
         map.put("username", entity.username());
         map.put("balance", entity.balance());
+        map.put("initialBalance", entity.initialBalance());
         map.put("status", entity.status());
         map.put("result", entity.result());
         map.put("betAmount", entity.betAmount());

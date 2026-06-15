@@ -16,6 +16,7 @@ import com.github.objoraddd.blackjack.domain.table.valueobjects.Money;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.GameStatus;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.GameResult;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -33,6 +34,10 @@ public final class TableDataMapper {
         Long balance = Objects.requireNonNull(domainTable.getPlayer().getBalance(), "Balance cannot be null")
                 .getAmount();
 
+        Long initialBalance = Objects
+                .requireNonNull(domainTable.getPlayer().getInitialBalance(), "Initial balance cannot be null")
+                .getAmount();
+
         String playerCardsJson = serializeCards(domainTable.getPlayer().getHand().getCards());
         String dealerCardsJson = serializeCards(domainTable.getDealerHand().getCards());
         String deckCardsString = serializeDeck(domainTable.getDeck().getCards());
@@ -42,12 +47,14 @@ public final class TableDataMapper {
                 userId,
                 username,
                 balance,
+                initialBalance,
                 domainTable.getStatus().name(),
                 domainTable.getResult() != null ? domainTable.getResult().name() : null,
                 domainTable.getPlayer().getBet().getAmount(),
                 playerCardsJson,
                 dealerCardsJson,
-                deckCardsString);
+                deckCardsString,
+                Instant.now());
     }
 
     public static Table toDomain(TableEntity entity) {
@@ -56,11 +63,13 @@ public final class TableDataMapper {
         String username = Objects.requireNonNull(entity.username(), "Entity Username cannot be null");
         String statusStr = Objects.requireNonNull(entity.status(), "Entity Status cannot be null");
         Long balance = Objects.requireNonNull(entity.balance(), "Entity Balance cannot be null");
+        Long initialBalance = Objects.requireNonNull(entity.initialBalance(), "Entity Initial Balance cannot be null");
 
         List<Card> playerCardList = deserializeCards(entity.playerCards());
         List<Card> dealerCardList = deserializeCards(entity.dealerCards());
 
-        Player player = new Player(UserId.of(userId), Username.of(username), Money.of(balance));
+        Player player = new Player(UserId.of(userId), Username.of(username), Money.of(balance),
+                Money.of(initialBalance));
         if (entity.betAmount() != null && entity.betAmount() > 0) {
             player.placeBet(Money.of(entity.betAmount()));
         }

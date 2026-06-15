@@ -2,13 +2,14 @@ package com.github.objoraddd.blackjack.domain.gateway;
 
 import com.github.objoraddd.blackjack.domain.table.valueobjects.Money;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.UserId;
+import reactor.core.publisher.Mono;
 
 public interface UserGateway {
-    Void holdBalance(UserId userId);
+    Mono<Money> holdBalance(UserId userId);
 
-    Void approveHold(UserId userId);
+    Mono<Void> approveHold(UserId userId);
 
-    Void rejectHold(UserId userId);
+    Mono<Void> rejectHold(UserId userId);
 
-    Void payout(UserId userId, Money amount);
+    Mono<Void> payout(UserId userId, Money amount);
 }

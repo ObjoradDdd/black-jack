@@ -13,15 +13,17 @@ import com.github.objoraddd.blackjack.domain.table.valueobjects.Username;
 public final class Player {
     private final UserId userId;
     private final Username username;
+    private final Money initialBalance;
 
     private Money balance;
     private Hand hand;
     private Money bet;
 
-    public Player(UserId userId, Username username, Money initialBalance) {
+    public Player(UserId userId, Username username, Money balance, Money initialBalance) {
         this.userId = userId;
         this.username = username;
-        this.balance = initialBalance;
+        this.balance = balance;
+        this.initialBalance = initialBalance;
         this.hand = Hand.emptyHand();
         this.bet = Money.zero();
     }
@@ -36,7 +38,7 @@ public final class Player {
         this.bet = betAmount;
     }
 
-    public void creditBalance(Money amount) {
+    public void topUpBalance(Money amount) {
         if (amount != null && !amount.isZero()) {
             this.balance = Money.of(this.balance.getAmount() + amount.getAmount());
         }
@@ -80,5 +82,9 @@ public final class Player {
 
     public Money getBalance() {
         return balance;
+    }
+
+    public Money getInitialBalance() {
+        return initialBalance;
     }
 }

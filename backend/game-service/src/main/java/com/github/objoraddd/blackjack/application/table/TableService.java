@@ -1,5 +1,6 @@
 package com.github.objoraddd.blackjack.application.table;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -9,6 +10,10 @@ import com.github.objoraddd.blackjack.domain.gateway.UserGateway;
 import com.github.objoraddd.blackjack.domain.repository.TableRepository;
 import com.github.objoraddd.blackjack.domain.table.Table;
 import com.github.objoraddd.blackjack.domain.table.entities.Player;
+import com.github.objoraddd.blackjack.domain.table.events.ChargeEvent;
+import com.github.objoraddd.blackjack.domain.table.events.DomainEvent;
+import com.github.objoraddd.blackjack.domain.table.events.RefundEvent;
+import com.github.objoraddd.blackjack.domain.table.events.WinEvent;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.GameResult;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.GameStatus;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.Money;
@@ -16,6 +21,7 @@ import com.github.objoraddd.blackjack.domain.table.valueobjects.TableId;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.UserId;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.Username;
 import com.github.objoraddd.blackjack.application.exceptions.ServiceException;
+import com.github.objoraddd.blackjack.application.outbox.OutboxPublisher;
 
 import reactor.core.publisher.Mono;
 
@@ -25,28 +31,28 @@ public final class TableService {
     private final TableRepository tableRepository;
     private final UserGateway userGateway;
     private final TransactionalOperator transactionalOperator;
-
-    private static final Money SESSION_AMOUNT = Money.of(10000L);
+    private final OutboxPublisher outboxPublisher;
 
     public TableService(TableRepository tableRepository, UserGateway userGateway,
-            TransactionalOperator transactionalOperator) {
+            TransactionalOperator transactionalOperator, OutboxPublisher outboxPublisher) {
         this.tableRepository = tableRepository;
         this.userGateway = userGateway;
         this.transactionalOperator = transactionalOperator;
+        this.outboxPublisher = outboxPublisher;
     }
 
     public Mono<Table> createTable(String userIdString, String username) {
         UserId userId = UserId.of(userIdString);
 
         return userGateway.holdBalance(userId)
-                .then(Mono.defer(() -> {
-                    Player player = new Player(userId, Username.of(username), SESSION_AMOUNT);
+                .flatMap(balance -> {
+                    Player player = new Player(userId, Username.of(username), balance, balance);
                     Table newTable = new Table(TableId.of(UUID.randomUUID().toString()), player);
 
                     return tableRepository.create(newTable)
                             .flatMap(createdTable -> userGateway.approveHold(userId).thenReturn(createdTable))
                             .onErrorResume(ex -> userGateway.rejectHold(userId).then(Mono.error(ex)));
-                }))
+                })
                 .onErrorMap(org.springframework.dao.DataIntegrityViolationException.class,
                         ex -> ServiceException.playerAlreadyInGameException());
     }
@@ -111,25 +117,31 @@ public final class TableService {
                 }).as(transactionalOperator::transactional);
     }
 
-    public Mono<Void> closeTable(String tableId) {
+    public Mono<DomainEvent> closeTable(String tableId) {
         return tableRepository.findById(TableId.of(tableId))
                 .switchIfEmpty(Mono.error(ServiceException.tableNotFoundException()))
                 .flatMap(table -> {
                     UserId userId = table.getPlayer().getUserId();
                     long currentBalance = table.getPlayer().getBalance().getAmount();
-                    long initialHold = SESSION_AMOUNT.getAmount();
+                    long initialHold = table.getPlayer().getInitialBalance().getAmount();
                     long diff = currentBalance - initialHold;
+                    TableId tId = TableId.of(tableId);
+                    Instant now = Instant.now();
 
                     return tableRepository.deleteById(table.getId())
                             .then(Mono.defer(() -> {
                                 if (table.getStatus() != GameStatus.FINISHED
                                         || table.getResult() == GameResult.DEALER_WON || diff < 0) {
-                                    return userGateway.approveHold(userId);
+                                    long loss = Math.abs(diff);
+                                    DomainEvent chargeEvent = new ChargeEvent(tId, userId, Money.of(loss), now);
+                                    return outboxPublisher.publish(chargeEvent);
                                 } else if (diff > 0) {
-                                    return userGateway.approveHold(userId)
-                                            .then(userGateway.payout(userId, Money.of(diff)));
+                                    DomainEvent winEvent = new WinEvent(tId, userId, Money.of(diff), now);
+                                    return outboxPublisher.publish(winEvent);
                                 } else {
-                                    return userGateway.approveHold(userId);
+                                    DomainEvent refundEvent = new RefundEvent(tId, userId, Money.of(initialHold),
+                                            now);
+                                    return outboxPublisher.publish(refundEvent);
                                 }
                             }));
                 }).as(transactionalOperator::transactional);
