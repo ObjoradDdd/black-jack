@@ -14,6 +14,7 @@ import com.github.objoraddd.blackjack.domain.table.events.ChargeEvent;
 import com.github.objoraddd.blackjack.domain.table.events.DomainEvent;
 import com.github.objoraddd.blackjack.domain.table.events.RefundEvent;
 import com.github.objoraddd.blackjack.domain.table.events.WinEvent;
+import com.github.objoraddd.blackjack.domain.table.valueobjects.DeckCount;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.GameResult;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.GameStatus;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.Money;
@@ -41,20 +42,21 @@ public final class TableService {
         this.outboxPublisher = outboxPublisher;
     }
 
-    public Mono<Table> createTable(String userIdString, String username) {
+    public Mono<Table> createTable(String userIdString, String username, int deckCount) {
         UserId userId = UserId.of(userIdString);
 
         return userGateway.holdBalance(userId)
                 .flatMap(balance -> {
-                    Player player = new Player(userId, Username.of(username), balance, balance);
-                    Table newTable = new Table(TableId.of(UUID.randomUUID().toString()), player);
+                    Player player = Player.createNewPlayer(userId, Username.of(username), balance);
+                    Table newTable = Table.createNewTable(TableId.of(UUID.randomUUID().toString()), player,
+                            DeckCount.of(deckCount));
 
                     return tableRepository.create(newTable)
-                            .flatMap(createdTable -> userGateway.approveHold(userId).thenReturn(createdTable))
-                            .onErrorResume(ex -> userGateway.rejectHold(userId).then(Mono.error(ex)));
+                            .flatMap(createdTable -> userGateway.approveHold(userId).thenReturn(createdTable));
                 })
                 .onErrorMap(org.springframework.dao.DataIntegrityViolationException.class,
-                        ex -> ServiceException.playerAlreadyInGameException());
+                        ex -> ServiceException.playerAlreadyInGameException())
+                .onErrorResume(ex -> userGateway.rejectHold(userId).then(Mono.error(ex)));
     }
 
     public Mono<Table> placeBet(String tableId, Long betAmount) {
@@ -100,20 +102,12 @@ public final class TableService {
         return tableRepository.findById(TableId.of(tableId))
                 .switchIfEmpty(Mono.error(ServiceException.tableNotFoundException()))
                 .flatMap(table -> {
-                    if (table.getStatus() != GameStatus.FINISHED) {
+                    try {
+                        table.nextRound();
+                        return tableRepository.update(table);
+                    } catch (com.github.objoraddd.blackjack.domain.exceptions.DomainException ex) {
                         return Mono.error(ServiceException.activeSessionException());
                     }
-
-                    Table resetTable = new Table(
-                            table.getId(),
-                            table.getPlayer(),
-                            com.github.objoraddd.blackjack.domain.table.entities.Deck.createStandardDeck(),
-                            com.github.objoraddd.blackjack.domain.table.valueobjects.Hand.emptyHand(),
-                            GameStatus.WAGER_PLACEMENT,
-                            null);
-                    resetTable.getPlayer().clearHand();
-
-                    return tableRepository.update(resetTable);
                 }).as(transactionalOperator::transactional);
     }
 

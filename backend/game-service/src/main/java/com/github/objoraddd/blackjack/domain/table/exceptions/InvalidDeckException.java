@@ -15,4 +15,8 @@ public class InvalidDeckException extends DomainException {
         return new InvalidDeckException("Number of cards cannot be zero.");
     }
 
+    public static InvalidDeckException invalidDeckContException() {
+        return new InvalidDeckException("Invalid deck configuration.");
+    }
+
 }

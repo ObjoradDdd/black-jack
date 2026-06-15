@@ -11,6 +11,7 @@ public record TableEntity(
         String status,
         String result,
         Long betAmount,
+        int deckCount,
         String playerCards,
         String dealerCards,
         String deckCards,

@@ -3,6 +3,7 @@ package com.github.objoraddd.blackjack.domain.table;
 import com.github.objoraddd.blackjack.domain.table.entities.Deck;
 import com.github.objoraddd.blackjack.domain.table.entities.Player;
 import com.github.objoraddd.blackjack.domain.table.exceptions.InvalidTableException;
+import com.github.objoraddd.blackjack.domain.table.valueobjects.DeckCount;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.GameResult;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.GameStatus;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.Hand;
@@ -18,16 +19,17 @@ public final class Table {
     private GameStatus status;
     private GameResult result;
 
-    public Table(TableId id, Player player) {
-        this.id = id;
-        this.player = player;
-        this.deck = Deck.createStandardDeck();
-        this.dealerHand = Hand.emptyHand();
-        this.status = GameStatus.WAGER_PLACEMENT;
-        this.result = null;
+    public static Table createNewTable(TableId id, Player player, DeckCount deckCount) {
+        return new Table(id, player, Deck.createMultiDeck(deckCount), Hand.emptyHand(), GameStatus.WAGER_PLACEMENT,
+                null);
     }
 
-    public Table(TableId id, Player player, Deck deck, Hand dealerHand, GameStatus status, GameResult result) {
+    public static Table rebuildFromState(TableId id, Player player, Deck deck, Hand dealerHand, GameStatus status,
+            GameResult result) {
+        return new Table(id, player, deck, dealerHand, status, result);
+    }
+
+    private Table(TableId id, Player player, Deck deck, Hand dealerHand, GameStatus status, GameResult result) {
         this.id = id;
         this.player = player;
         this.deck = deck;
@@ -147,6 +149,21 @@ public final class Table {
             case DEALER_WON:
             default:
                 return Money.zero();
+        }
+    }
+
+    public void nextRound() {
+        if (this.status != GameStatus.FINISHED) {
+            throw com.github.objoraddd.blackjack.domain.table.exceptions.InvalidTableException.InvalidMoveException();
+        }
+
+        this.status = GameStatus.WAGER_PLACEMENT;
+        this.result = null;
+        this.dealerHand = Hand.emptyHand();
+        this.player.clearHand();
+
+        if (this.deck.needsShuffling()) {
+            this.deck.shuffleAndReset();
         }
     }
 

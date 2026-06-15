@@ -1,7 +1,5 @@
 package com.github.objoraddd.blackjack.domain.table.entities;
 
-import java.util.List;
-
 import com.github.objoraddd.blackjack.domain.table.exceptions.InvalidHandException;
 import com.github.objoraddd.blackjack.domain.table.exceptions.InvalidPlayerException;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.Card;
@@ -19,7 +17,19 @@ public final class Player {
     private Hand hand;
     private Money bet;
 
-    public Player(UserId userId, Username username, Money balance, Money initialBalance) {
+    public static Player createNewPlayer(UserId userId, Username username, Money balance) {
+        return new Player(userId, username, balance, balance);
+    }
+
+    public static Player rebuildFromState(UserId userId, Username username, Money balance, Money initialBalance,
+            Hand hand, Money bet) {
+        Player player = new Player(userId, username, balance, initialBalance);
+        player.hand = hand;
+        player.bet = bet;
+        return player;
+    }
+
+    private Player(UserId userId, Username username, Money balance, Money initialBalance) {
         this.userId = userId;
         this.username = username;
         this.balance = balance;
@@ -54,10 +64,6 @@ public final class Player {
             throw InvalidHandException.nullCardException();
         }
         this.hand = this.hand.addCard(card);
-    }
-
-    public void buildHand(List<Card> cards) {
-        this.hand = Hand.rebuildFromList(cards);
     }
 
     public void clearHand() {
