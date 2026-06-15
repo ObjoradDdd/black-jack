@@ -7,6 +7,7 @@ public record TableEntity(
         String userId,
         String username,
         Long balance,
+        Long initialBalance,
         String status,
         String result,
         Long betAmount,

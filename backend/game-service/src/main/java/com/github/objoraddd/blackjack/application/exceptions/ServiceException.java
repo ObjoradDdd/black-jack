@@ -25,4 +25,8 @@ public class ServiceException extends RuntimeException {
         return new ServiceException("Cannot create table with zero balance");
     }
 
+    public static ServiceException activeSessionException() {
+        return new ServiceException("User has an active session");
+    }
+
 }

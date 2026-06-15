@@ -13,8 +13,8 @@ public record WinEvent(
         Instant occurredOn) implements DomainEvent {
 
     @Override
-    public String aggregateId() {
-        return tableId.getValue();
+    public TableId aggregateId() {
+        return tableId;
     }
 
     @Override
