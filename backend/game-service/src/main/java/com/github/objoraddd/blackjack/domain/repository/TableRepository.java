@@ -8,7 +8,9 @@ import reactor.core.publisher.Mono;
 public interface TableRepository {
     Mono<Table> findById(TableId tableId);
 
-    Mono<Table> save(Table table);
+    Mono<Table> create(Table table);
+
+    Mono<Table> update(Table table);
 
     Mono<Void> deleteById(TableId tableId);
 }

@@ -1,5 +1,7 @@
 package com.github.objoraddd.blackjack.domain.table.entities;
 
+import java.util.List;
+
 import com.github.objoraddd.blackjack.domain.table.exceptions.InvalidHandException;
 import com.github.objoraddd.blackjack.domain.table.exceptions.InvalidPlayerException;
 import com.github.objoraddd.blackjack.domain.table.valueobjects.Card;
@@ -38,6 +40,10 @@ public final class Player {
             throw InvalidHandException.nullCardException();
         }
         this.hand = this.hand.addCard(card);
+    }
+
+    public void buildHand(List<Card> cards) {
+        this.hand = Hand.rebuildFromList(cards);
     }
 
     public void clearHand() {

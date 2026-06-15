@@ -41,7 +41,10 @@ public final class TableService {
             Player player = new Player(UserId.of(userId), Username.of(username));
 
             return new Table(TableId.of(UUID.randomUUID().toString()), player);
-        }).flatMap(tableRepository::save);
+        }).flatMap(tableRepository::create)
+                .onErrorMap(org.springframework.dao.DataIntegrityViolationException.class,
+                        ex -> ServiceException.playerAlreadyInGameException());
+        ;
     }
 
     public Mono<Table> placeBet(String tableId, Long betAmount) {
@@ -59,7 +62,7 @@ public final class TableService {
                             domainBet,
                             java.time.Instant.now());
 
-                    return tableRepository.save(table)
+                    return tableRepository.update(table)
                             .then(outboxPublisher.publish(
                                     betEvent))
                             .thenReturn(table);
@@ -73,7 +76,7 @@ public final class TableService {
 
                     table.start();
 
-                    return tableRepository.save(table)
+                    return tableRepository.update(table)
                             .flatMap(savedTable -> {
                                 if (savedTable.getStatus() == GameStatus.FINISHED) {
                                     Money payoutAmount = savedTable.calculatePayout();
@@ -100,8 +103,25 @@ public final class TableService {
 
                     table.playerHit();
 
-                    return tableRepository.save(table);
-                });
+                    return tableRepository.update(table)
+                            .flatMap(savedTable -> {
+                                if (savedTable.getStatus() == GameStatus.FINISHED) {
+                                    Money payoutAmount = savedTable.calculatePayout();
+                                    UserId userId = savedTable.getPlayer().getUserId();
+
+                                    WinEvent winEvent = new WinEvent(
+                                            savedTable.getId(),
+                                            userId,
+                                            payoutAmount,
+                                            java.time.Instant.now());
+
+                                    return outboxPublisher.publish(winEvent)
+                                            .thenReturn(savedTable);
+                                }
+                                return Mono.just(savedTable);
+                            });
+                })
+                .as(transactionalOperator::transactional);
     }
 
     public Mono<Table> stand(String tableId) {
@@ -111,7 +131,7 @@ public final class TableService {
 
                     table.playerStand();
 
-                    return tableRepository.save(table)
+                    return tableRepository.update(table)
                             .flatMap(savedTable -> {
                                 Money payoutAmount = savedTable.calculatePayout();
 
@@ -136,6 +156,7 @@ public final class TableService {
     public Mono<Void> closeTable(String tableId) {
         return tableRepository.findById(TableId.of(tableId))
                 .switchIfEmpty(Mono.error(ServiceException.tableNotFoundException()))
-                .flatMap(table -> tableRepository.deleteById(table.getId()));
+                .flatMap(table -> tableRepository.deleteById(table.getId()))
+                .as(transactionalOperator::transactional);
     }
 }

@@ -19,6 +19,13 @@ public final class Hand {
         return new Hand(List.of());
     }
 
+    public static Hand rebuildFromList(List<Card> cards) {
+        if (cards == null) {
+            throw InvalidHandException.nullCardListException();
+        }
+        return new Hand(cards);
+    }
+
     public List<Card> getCards() {
         return cards;
     }

@@ -27,6 +27,13 @@ public final class Deck {
         return new Deck(newCards);
     }
 
+    public static Deck rebuildFromList(List<Card> cards) {
+        if (cards == null || cards.isEmpty()) {
+            throw InvalidDeckException.emptyDeckException();
+        }
+        return new Deck(cards);
+    }
+
     public static Deck createMultiDeck(int deckCount) {
         if (deckCount <= 0) {
             throw InvalidDeckException.invalidCardNumberDeckException();
@@ -54,4 +61,7 @@ public final class Deck {
         return cards.size();
     }
 
+    public List<Card> getCards() {
+        return cards;
+    }
 }

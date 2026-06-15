@@ -27,6 +27,15 @@ public final class Table {
         this.result = null;
     }
 
+    public Table(TableId id, Player player, Deck deck, Hand dealerHand, GameStatus status, GameResult result) {
+        this.id = id;
+        this.player = player;
+        this.deck = deck;
+        this.dealerHand = dealerHand;
+        this.status = status;
+        this.result = result;
+    }
+
     public void placeBet(Money betAmount) {
         if (this.status != GameStatus.WAGER_PLACEMENT) {
             throw InvalidTableException.InvalidMoveException();
@@ -151,6 +160,10 @@ public final class Table {
 
     public Hand getDealerHand() {
         return dealerHand;
+    }
+
+    public Deck getDeck() {
+        return deck;
     }
 
     public GameStatus getStatus() {

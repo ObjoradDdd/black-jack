@@ -13,4 +13,8 @@ public class ServiceException extends RuntimeException {
         return new ServiceException("Bad status");
     }
 
+    public static ServiceException playerAlreadyInGameException() {
+        return new ServiceException("Player is already in a game");
+    }
+
 }
