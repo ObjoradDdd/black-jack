@@ -43,7 +43,7 @@ public final class Player {
             throw InvalidPlayerException.zeroBetException();
         } else if (betAmount.isGreaterThan(balance)) {
             throw InvalidPlayerException.notEnoughMoneyException();
-        }
+        } 
         this.balance = Money.of(balance.getAmount() - betAmount.getAmount());
         this.bet = betAmount;
     }

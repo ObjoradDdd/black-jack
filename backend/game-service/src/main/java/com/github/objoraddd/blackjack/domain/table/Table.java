@@ -40,17 +40,21 @@ public final class Table {
 
     public void placeBet(Money betAmount) {
         if (this.status != GameStatus.WAGER_PLACEMENT) {
-            throw InvalidTableException.InvalidMoveException();
+            throw InvalidTableException.invalidMoveException();
+        }
+
+        if (betAmount.getAmount() % 2 != 0) {
+            throw InvalidTableException.invalidBetAmountException();
         }
         this.player.placeBet(betAmount);
     }
 
     public void start() {
         if (this.status != GameStatus.WAGER_PLACEMENT) {
-            throw InvalidTableException.InvalidMoveException();
+            throw InvalidTableException.invalidMoveException();
         }
         if (this.player.getBet().isZero()) {
-            throw InvalidTableException.GameNotStartedException();
+            throw InvalidTableException.gameNotStartedException();
         }
 
         this.player.clearHand();
@@ -73,7 +77,7 @@ public final class Table {
 
     public void playerHit() {
         if (this.status != GameStatus.PLAYER_TURN) {
-            throw InvalidTableException.InvalidMoveException();
+            throw InvalidTableException.invalidMoveException();
         }
 
         this.player.receiveCard(deck.drawCard());
@@ -86,7 +90,7 @@ public final class Table {
 
     public void playerStand() {
         if (this.status != GameStatus.PLAYER_TURN) {
-            throw InvalidTableException.InvalidMoveException();
+            throw InvalidTableException.invalidMoveException();
         }
 
         this.status = GameStatus.DEALER_TURN;
@@ -136,14 +140,14 @@ public final class Table {
 
     public Money calculatePayout() {
         if (this.status != GameStatus.FINISHED) {
-            throw InvalidTableException.GameAlreadyFinishedException();
+            throw InvalidTableException.gameAlreadyFinishedException();
         }
 
         long betAmount = this.player.getBet().getAmount();
 
         switch (this.result) {
             case PLAYER_WON:
-                return Money.of(betAmount * 2);
+                return Money.of(betAmount * 3 / 2);
             case DRAW:
                 return this.player.getBet();
             case DEALER_WON:
@@ -154,7 +158,7 @@ public final class Table {
 
     public void nextRound() {
         if (this.status != GameStatus.FINISHED) {
-            throw com.github.objoraddd.blackjack.domain.table.exceptions.InvalidTableException.InvalidMoveException();
+            throw com.github.objoraddd.blackjack.domain.table.exceptions.InvalidTableException.invalidMoveException();
         }
 
         this.status = GameStatus.WAGER_PLACEMENT;
