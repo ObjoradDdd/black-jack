@@ -26,6 +26,7 @@ public final class TableDataMapper {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static TableEntity toEntity(Table domainTable) {
+        Long version = domainTable.getVersion();
         String id = Objects.requireNonNull(domainTable.getId(), "Table ID cannot be null").getValue();
         String userId = Objects.requireNonNull(domainTable.getPlayer().getUserId(), "User ID cannot be null")
                 .getValue();
@@ -46,6 +47,7 @@ public final class TableDataMapper {
         String deckCardsString = serializeDeck(domainTable.getDeck().getCards());
 
         return new TableEntity(
+                version,
                 id,
                 userId,
                 username,
@@ -62,6 +64,7 @@ public final class TableDataMapper {
     }
 
     public static Table toDomain(TableEntity entity) {
+        Long version = Objects.requireNonNull(entity.version(), "Entity version cannot be null");
         String id = Objects.requireNonNull(entity.id(), "Entity ID cannot be null");
         String userId = Objects.requireNonNull(entity.userId(), "Entity User ID cannot be null");
         String username = Objects.requireNonNull(entity.username(), "Entity Username cannot be null");
@@ -95,7 +98,8 @@ public final class TableDataMapper {
                 deck,
                 dealerHand,
                 status,
-                result);
+                result,
+                version);
     }
 
     private static String serializeCards(List<Card> cards) {

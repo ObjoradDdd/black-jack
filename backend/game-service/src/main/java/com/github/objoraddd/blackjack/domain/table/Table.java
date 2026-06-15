@@ -14,28 +14,34 @@ public final class Table {
     private final TableId id;
     private final Player player;
     private final Deck deck;
+    private final Long version;
 
     private Hand dealerHand;
     private GameStatus status;
     private GameResult result;
+    
 
     public static Table createNewTable(TableId id, Player player, DeckCount deckCount) {
+        
+        Long version = 0L;
+
         return new Table(id, player, Deck.createMultiDeck(deckCount), Hand.emptyHand(), GameStatus.WAGER_PLACEMENT,
-                null);
+                null, version);
     }
 
     public static Table rebuildFromState(TableId id, Player player, Deck deck, Hand dealerHand, GameStatus status,
-            GameResult result) {
-        return new Table(id, player, deck, dealerHand, status, result);
+            GameResult result, Long version) {
+        return new Table(id, player, deck, dealerHand, status, result, version);
     }
 
-    private Table(TableId id, Player player, Deck deck, Hand dealerHand, GameStatus status, GameResult result) {
+    private Table(TableId id, Player player, Deck deck, Hand dealerHand, GameStatus status, GameResult result, Long version) {
         this.id = id;
         this.player = player;
         this.deck = deck;
         this.dealerHand = dealerHand;
         this.status = status;
         this.result = result;
+        this.version = version;
     }
 
     public void placeBet(Money betAmount) {
@@ -193,5 +199,9 @@ public final class Table {
 
     public GameResult getResult() {
         return result;
+    }
+
+    public Long getVersion() {
+        return version;
     }
 }
