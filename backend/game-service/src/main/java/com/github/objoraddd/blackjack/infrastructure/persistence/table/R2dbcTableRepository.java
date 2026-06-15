@@ -6,6 +6,8 @@ import com.github.objoraddd.blackjack.domain.table.valueobjects.TableId;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
+
+import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 
@@ -21,7 +23,7 @@ public final class R2dbcTableRepository implements TableRepository {
     @Override
     public Mono<Table> findById(TableId id) {
         String sql = """
-                SELECT id, user_id, username, balance, status, result, bet_amount, player_cards, dealer_cards, deck_cards
+                SELECT id, user_id, username, balance, status, result, bet_amount, player_cards, dealer_cards, deck_cards, last_updated
                 FROM blackjack_tables
                 WHERE id = :id
                 FOR UPDATE
@@ -39,7 +41,8 @@ public final class R2dbcTableRepository implements TableRepository {
                         Objects.requireNonNull(row.get("bet_amount", Long.class), "Bet amount cannot be null"),
                         Objects.requireNonNull(row.get("player_cards", String.class), "Player cards cannot be null"),
                         Objects.requireNonNull(row.get("dealer_cards", String.class), "Dealer cards cannot be null"),
-                        Objects.requireNonNull(row.get("deck_cards", String.class), "Deck cards cannot be null")))
+                        Objects.requireNonNull(row.get("deck_cards", String.class), "Deck cards cannot be null"),
+                        Objects.requireNonNull(row.get("last_updated", Instant.class), "Last updated cannot be null")))
                 .one()
                 .map(TableDataMapper::toDomain);
     }
@@ -47,8 +50,8 @@ public final class R2dbcTableRepository implements TableRepository {
     @Override
     public Mono<Table> create(Table table) {
         String sql = """
-                INSERT INTO blackjack_tables (id, user_id, username, balance, status, result, bet_amount, player_cards, dealer_cards, deck_cards)
-                VALUES (:id, :userId, :username, :balance, :status, :result, :betAmount, :playerCards::jsonb, :dealerCards::jsonb, :deckCards)
+                INSERT INTO blackjack_tables (id, user_id, username, balance, status, result, bet_amount, player_cards, dealer_cards, deck_cards, last_updated)
+                VALUES (:id, :userId, :username, :balance, :status, :result, :betAmount, :playerCards::jsonb, :dealerCards::jsonb, :deckCards, :lastUpdated)
                 """;
 
         return executeWrite(sql, table);
@@ -64,7 +67,8 @@ public final class R2dbcTableRepository implements TableRepository {
                     player_cards = :playerCards::jsonb,
                     dealer_cards = :dealerCards::jsonb,
                     deck_cards = :deckCards,
-                    balance = :balance
+                    balance = :balance,
+                    last_updated = :lastUpdated
                 WHERE id = :id
                 """;
 
@@ -104,6 +108,7 @@ public final class R2dbcTableRepository implements TableRepository {
         map.put("playerCards", entity.playerCards());
         map.put("dealerCards", entity.dealerCards());
         map.put("deckCards", entity.deckCards());
+        map.put("lastUpdated", entity.lastUpdated());
         return map;
     }
 }
