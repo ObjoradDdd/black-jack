@@ -17,4 +17,12 @@ public class ServiceException extends RuntimeException {
         return new ServiceException("Player is already in a game");
     }
 
+    public static ServiceException userNotFoundException() {
+        return new ServiceException("User not found");
+    }
+
+    public static ServiceException zeroBalanceException() {
+        return new ServiceException("Cannot create table with zero balance");
+    }
+
 }

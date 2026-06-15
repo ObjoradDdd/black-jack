@@ -6,7 +6,5 @@ import com.github.objoraddd.blackjack.domain.table.valueobjects.UserId;
 import reactor.core.publisher.Mono;
 
 public interface UserGateway {
-    Mono<Void> charge(UserId userId, Money amount);
-
-    Mono<Void> payout(UserId userId, Money amount);
+    Mono<Money> getUserBalance(UserId userId);
 }

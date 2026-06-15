@@ -14,6 +14,10 @@ public final class Money {
         this.amount = amount;
     }
 
+    public boolean isGreaterThan(Money other) {
+        return this.amount > other.getAmount();
+    }
+
     public static Money zero() {
         return new Money(0L);
     }

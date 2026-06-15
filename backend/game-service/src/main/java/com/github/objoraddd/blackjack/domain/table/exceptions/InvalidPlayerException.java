@@ -10,4 +10,8 @@ public class InvalidPlayerException extends DomainException {
     public static InvalidPlayerException zeroBetException() {
         return new InvalidPlayerException("Bet amount must be greater than zero.");
     }
+
+    public static InvalidPlayerException notEnoughMoneyException() {
+        return new InvalidPlayerException("Not enough money to place the bet.");
+    }
 }

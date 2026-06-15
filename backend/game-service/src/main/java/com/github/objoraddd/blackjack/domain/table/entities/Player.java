@@ -14,12 +14,14 @@ public final class Player {
     private final UserId userId;
     private final Username username;
 
+    private Money balance;
     private Hand hand;
     private Money bet;
 
-    public Player(UserId userId, Username username) {
+    public Player(UserId userId, Username username, Money initialBalance) {
         this.userId = userId;
         this.username = username;
+        this.balance = initialBalance;
         this.hand = Hand.emptyHand();
         this.bet = Money.zero();
     }
@@ -27,8 +29,18 @@ public final class Player {
     public void placeBet(Money betAmount) {
         if (betAmount == null || betAmount.isZero()) {
             throw InvalidPlayerException.zeroBetException();
+        } else if (betAmount.isGreaterThan(balance)) {
+            throw InvalidPlayerException.notEnoughMoneyException();
         }
+        this.balance = Money.of(balance.getAmount() - betAmount.getAmount());
         this.bet = betAmount;
+    }
+
+    public void creditBalance(Money amount) {
+        if (amount != null && !amount.isZero()) {
+            this.balance = Money.of(this.balance.getAmount() + amount.getAmount());
+        }
+        this.bet = Money.zero();
     }
 
     public void clearBet() {
@@ -64,5 +76,9 @@ public final class Player {
 
     public Money getBet() {
         return bet;
+    }
+
+    public Money getBalance() {
+        return balance;
     }
 }

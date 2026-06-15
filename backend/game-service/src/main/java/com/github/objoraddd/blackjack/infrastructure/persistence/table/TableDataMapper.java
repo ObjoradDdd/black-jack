@@ -30,6 +30,9 @@ public final class TableDataMapper {
         String username = Objects.requireNonNull(domainTable.getPlayer().getUsername(), "Username cannot be null")
                 .getValue();
 
+        Long balance = Objects.requireNonNull(domainTable.getPlayer().getBalance(), "Balance cannot be null")
+                .getAmount();
+
         String playerCardsJson = serializeCards(domainTable.getPlayer().getHand().getCards());
         String dealerCardsJson = serializeCards(domainTable.getDealerHand().getCards());
         String deckCardsString = serializeDeck(domainTable.getDeck().getCards());
@@ -38,6 +41,7 @@ public final class TableDataMapper {
                 id,
                 userId,
                 username,
+                balance,
                 domainTable.getStatus().name(),
                 domainTable.getResult() != null ? domainTable.getResult().name() : null,
                 domainTable.getPlayer().getBet().getAmount(),
@@ -51,11 +55,12 @@ public final class TableDataMapper {
         String userId = Objects.requireNonNull(entity.userId(), "Entity User ID cannot be null");
         String username = Objects.requireNonNull(entity.username(), "Entity Username cannot be null");
         String statusStr = Objects.requireNonNull(entity.status(), "Entity Status cannot be null");
+        Long balance = Objects.requireNonNull(entity.balance(), "Entity Balance cannot be null");
 
         List<Card> playerCardList = deserializeCards(entity.playerCards());
         List<Card> dealerCardList = deserializeCards(entity.dealerCards());
 
-        Player player = new Player(UserId.of(userId), Username.of(username));
+        Player player = new Player(UserId.of(userId), Username.of(username), Money.of(balance));
         if (entity.betAmount() != null && entity.betAmount() > 0) {
             player.placeBet(Money.of(entity.betAmount()));
         }
